@@ -1,18 +1,27 @@
 import debug from 'debug'
 import express from 'express'
 import {ROOT_APP_NAMESPACE, SERVER_PORT} from './configs'
-
+import * as routers from './controllers'
+import {authenticate} from './middlewares/auth'
 import {errorHandler} from './middlewares/error'
-import {setupLogStash, initDatabaseConnection} from './utils/setup'
+import {setupLogStash, initDatabaseConnection, combineRouters} from './utils/setup'
 
 import 'express-async-errors'
 
 async function initialize(cb) {
   const app = express()
 
-  app.get('/', async (req, res, next) => {
-    throw new Error('sdasd')
-  })
+  // register middlewares
+  app.use(express.json())
+  combineRouters(app, routers)
+
+  app.get('/',
+    authenticate(),
+    async (req, res, next) => {
+      res.json(req.user)
+    })
+
+  // error middleware should be register at the end of express instance.
   app.use(errorHandler)
   app.listen(SERVER_PORT, cb)
 }
