@@ -14,3 +14,10 @@ export async function initDatabaseConnection() {
   
   return db.sync()
 }
+
+export function combineRouters(app, routers) {
+  for (const router of Object.values(routers)) {
+    const {prefix, routerInstance} = router
+    app.use(prefix, routerInstance)
+  }
+}

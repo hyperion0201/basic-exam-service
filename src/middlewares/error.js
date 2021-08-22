@@ -1,7 +1,6 @@
-import debug from 'debug'
-const ns = 'server-error'
+import {HTTP_STATUS_CODES} from '../utils/constants'
 
 export function errorHandler(err, req, res, next) {
-  debug.log(ns, 'Something err : ', err.message)
-  res.sendStatus(500)
+  err.logDetail({omitStackTrace: false})
+  res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
 }
