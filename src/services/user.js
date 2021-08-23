@@ -101,3 +101,23 @@ export async function deleteUser(opts = {}) {
     })
   }
 }
+
+export async function updatePassword(opts = {}, newPassword) {
+  // hash password
+  const hashed = hashPasswordSync(newPassword)
+  const queryObj = {
+    ...opts
+  }
+
+  try {
+    return await db.User.update({
+      password: hashed
+    }, queryObj)
+  }
+  catch (err) {
+    throw new ServerError({
+      name: 'Something error when update password.',
+      err
+    })
+  }
+}
