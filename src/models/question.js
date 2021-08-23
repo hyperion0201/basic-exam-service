@@ -13,6 +13,9 @@ export default function (sequelize) {
     type: {
       type: DataTypes.ENUM,
       values: Object.values(enums.QUESTION_TYPES)
+    },
+    score: {
+      type: DataTypes.INTEGER
     }
   }
 
