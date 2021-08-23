@@ -3,7 +3,6 @@ import express from 'express'
 import sendEmail from '../services/email'
 import * as userService from '../services/user'
 import {HTTP_STATUS_CODES} from '../utils/constants'
-import {encrypt, decrypt} from '../utils/crypto'
 import {generateAccessToken} from '../utils/jwt'
 import {verifyPasswordSync, generateResetPassword} from '../utils/password'
 

@@ -1,4 +1,4 @@
-# basic-exam-service
+# basic-exam-service [![Pull request linter check](https://github.com/hyperion0201/basic-exam-service/actions/workflows/node.js.yml/badge.svg)](https://github.com/hyperion0201/basic-exam-service/actions/workflows/node.js.yml)
 An api-rest service that serves requests from basic-exam website project.
 ### Prerequisites
 - Node: `10.22.0`
