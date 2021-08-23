@@ -1,6 +1,6 @@
 # This pipeline will install all depedencies, lint syntax error.
 
-name: Node.js CI
+name: Pull request linter check
 
 on:
   push:
@@ -10,22 +10,20 @@ on:
 
 jobs:
   run-linter:
-    name: Run linter for PR
+    name: Pull request linter pipeline
     runs-on: ubuntu-latest
 
     steps:
-    - name: GitHub Action for Yarn
-      uses: Borales/actions-yarn@v2.3.0
+    - name: Setup permission for Docker container
+      run: sudo chown -R $USER:$USER ${{ github.workspace }}
     - name: Checkout to specific codebase...
       uses: actions/checkout@v2
-    - name: Set up Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v1
       with:
         node-version: 10
-    - uses: borales/actions-yarn@v2.3.0
-      with:
-        cmd: install --frozen-install
-    - uses: borales/actions-yarn@v2.3.0
-      with:
-        cmd: lint
+    - name: Install depedencies
+      run: npm install
+    - name: Run lint
+      run: npm run lint
 
