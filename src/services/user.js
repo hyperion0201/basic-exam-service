@@ -1,3 +1,5 @@
+import get from 'lodash/get'
+import isNumber from 'lodash/isNumber'
 import db from '../core/db'
 import * as enums from '../utils/constants'
 import ServerError from '../utils/custom-error'
@@ -120,4 +122,17 @@ export async function updatePassword(opts = {}, newPassword) {
       err
     })
   }
+}
+
+export async function isAdmin(userOrId) {
+  let userObj = userOrId
+  if (isNumber(userOrId)) {
+    userObj = await getUser({
+      where: {
+        id: userOrId
+      }
+    })
+  }
+
+  return get(userObj, 'role') === enums.USER_ROLES.ADMIN
 }

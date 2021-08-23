@@ -16,7 +16,9 @@ async function initialize(cb) {
   combineRouters(app, routers)
 
   app.get('/',
-    authenticate(),
+    authenticate({
+      requiredAdmin: true
+    }),
     async (req, res, next) => {
       res.json(req.user)
     })
