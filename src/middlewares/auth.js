@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import get from 'lodash/get'
 import {JWT_SECRET} from '../configs'
+import {getUser, isAdmin} from '../services/user'
 import {HTTP_STATUS_CODES} from '../utils/constants'
 import ServerError from '../utils/custom-error'
 
@@ -20,17 +21,38 @@ function verifyToken(token) {
 }
 
 export function authenticate(options = {}) {
+  const {requiredAdmin = false} = options
+
   return async (req, res, next) => {
     const token = extractTokenFromRequest(req)
 
     if (!token) {
-      return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED).send({
+      return res.status(HTTP_STATUS_CODES.UNAUTHORIZED).send({
         message: 'Unauthorized.'
       })
     }
     
     try {
-      const user = await verifyToken(token)
+      const payload = await verifyToken(token)
+      const user = await getUser({
+        where: {
+          id: payload.id
+        }
+      })
+      if (!user) {
+        return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+          message: 'Token expired or invalid. Please re login.'
+        })
+      }
+
+      if (requiredAdmin) {
+        if (!await isAdmin(user)) {
+          return res.status(HTTP_STATUS_CODES.FORBIDDEN).send({
+            message: 'Required admin.'
+          })
+        }
+      }
+
       req.user = user
       return next()
     }

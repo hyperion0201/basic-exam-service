@@ -47,7 +47,6 @@ router.post('/register', async (req, res, next) => {
   try {
     const user = await userService.createUser(payload)
 
-    // to-do: email verification
     res.json(user)
   }
   catch (err) {
@@ -69,7 +68,6 @@ router.post('/reset-password', async (req, res, next) => {
     })
   }
 
-  // reset password
   const resetPassword = generateResetPassword()
   try {
     await userService.updatePassword({
