@@ -57,10 +57,10 @@ export function authenticate(options = {}) {
       return next()
     }
     catch (err) {
-      throw new ServerError({
+      next(new ServerError({
         name: 'Something error when authenticate.',
         err
-      })
+      }))
     }
   }
 }
