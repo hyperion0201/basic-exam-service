@@ -12,7 +12,7 @@ export function requireTestKitOwner() {
       const testKit = await TestKitService.getDetailTestKitByUserCreated(idTestKit, userId)
       if (!testKit) {
         return res.status(HTTP_STATUS_CODES.FORBIDDEN).send({
-          message: 'Required owner.'
+          message: 'Required test kit owner.'
         })
       }
       next()

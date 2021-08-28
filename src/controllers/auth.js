@@ -1,11 +1,15 @@
 /* eslint-disable camelcase */
 /* eslint-disable babel/new-cap */
 import express from 'express'
+import get from 'lodash/get'
+import {RESET_PASSWORD_SECRET} from '../configs'
+import {authenticate} from '../middlewares/auth'
 import sendEmail from '../services/email'
 import GoogleOAuth2 from '../services/google-auth'
 import * as userService from '../services/user'
 import {HTTP_STATUS_CODES} from '../utils/constants'
 import * as enums from '../utils/constants'
+import {encrypt, decrypt} from '../utils/crypto'
 import ServerError from '../utils/custom-error'
 import {generateAccessToken} from '../utils/jwt'
 import {verifyPasswordSync, generateResetPassword} from '../utils/password'
@@ -104,17 +108,90 @@ router.post('/login', async (req, res, next) => {
   })
 })
 
+router.get('/verification', async (req, res, next) => {
+  const code = req.query.code
+  const email = decrypt(code, RESET_PASSWORD_SECRET)
+  try {
+    const user = await userService.getUser({
+      where: {
+        email
+      }
+    })
+
+    if (!user) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+        message: 'Link is invalid or expired.'
+      })
+    }
+
+    await userService.updateUser({
+      where: {
+        email
+      }
+    }, {
+      status: enums.USER_STATUS.VERIFIED
+    })
+
+    return res.json({
+      message: 'Your account is verified.'
+    })
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
 router.post('/register', async (req, res, next) => {
   const payload = req.body
   try {
     const user = await userService.createUser(payload)
-
+    const userEmail = get(user, 'email')
+    const code = encrypt(userEmail, RESET_PASSWORD_SECRET)
+    const verifyUrl = `https://wiflyhomework.com/exam-api/v1/auth/verification?code=${code}`
+    await sendEmail(userEmail,
+      '[Basic Exam] - Verify your new account',
+      `Hi.
+       Please go to this link to verify your account: ${verifyUrl}
+       Thanks.
+    `)
     res.json(user)
   }
   catch (err) {
     next(err)
   }
 })
+
+router.post('/change-password',
+  authenticate(),
+  async (req, res, next) => {
+    const userId = get(req, 'user.id')
+    const currentHashedPass = get(req, 'user.password')
+    const oldPass = get(req, 'body.oldPass')
+    const newPass = get(req, 'body.newPass')
+
+    const isPasswordCorrect = verifyPasswordSync(oldPass, currentHashedPass)
+    if (!isPasswordCorrect) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+        message: 'Password not match.'
+      })
+    }
+    
+    try {
+      await userService.updatePassword({
+        where: {
+          id: userId
+        }
+      }, newPass)
+
+      return res.json({
+        message: 'Change password successfully.'
+      })
+    }
+    catch (err) {
+      next(err)
+    }
+  }
+)
 
 router.post('/reset-password', async (req, res, next) => {
   const {email} = req.body
@@ -125,7 +202,7 @@ router.post('/reset-password', async (req, res, next) => {
   })
   
   if (!user) {
-    return res.sendStatus(HTTP_STATUS_CODES.BAD_REQUEST).send({
+    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
       message: 'Email not found.'
     })
   }
