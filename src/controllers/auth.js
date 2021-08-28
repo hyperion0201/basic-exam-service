@@ -112,8 +112,8 @@ router.post('/login', async (req, res, next) => {
 
 router.get('/verification', async (req, res, next) => {
   const code = req.query.code
-  const email = decrypt(code, RESET_PASSWORD_SECRET)
   try {
+    const email = decrypt(code, RESET_PASSWORD_SECRET)
     const user = await userService.getUser({
       where: {
         email
