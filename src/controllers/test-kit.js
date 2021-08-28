@@ -2,9 +2,10 @@
 import express from 'express'
 import get from 'lodash/get'
 import {authenticate} from '../middlewares/auth'
+import {requireTestKitOwner} from '../middlewares/ownerTestKit'
 import * as QuestionService from '../services/question'
 import * as TestKitService from '../services/test-kit'
-import {HTTP_STATUS_CODES} from '../utils/constants'
+import {HTTP_STATUS_CODES, TEST_KIT_STATUS} from '../utils/constants'
 import {examHasStart, overExamTime} from '../utils/date'
 import {questionToTestClient} from '../utils/test-kit'
 
@@ -49,7 +50,7 @@ router.post('/', authenticate(), async (req, res, next) => {
   }
 })
 
-router.put('/:id', authenticate(), async (req, res, next) => {
+router.put('/:id', authenticate(), requireTestKitOwner(), async (req, res, next) => {
   const userId = get(req, 'user.id')
   if (userId !== get(req, 'body.createdBy')) {
     return res.status(HTTP_STATUS_CODES.BAD_REQUEST).end()
@@ -60,12 +61,10 @@ router.put('/:id', authenticate(), async (req, res, next) => {
   
   try {
     const testKit = await TestKitService.getDetailTestKitById(idTestKit)
-    
-    if (!testKit) return res.status(HTTP_STATUS_CODES.NOT_FOUND).end()
 
-    if (testKit.createdBy !== userId) return res.status(HTTP_STATUS_CODES.FORBIDDEN).end()
+    const startDate = get(testKit, 'dataValues.startDate')
 
-    if (examHasStart(testKit?.dataValues?.startDate)) {
+    if (examHasStart(startDate)) {
       return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam has started'})
     }
     
@@ -77,20 +76,16 @@ router.put('/:id', authenticate(), async (req, res, next) => {
   }
 })
 
-router.delete('/:id', authenticate(), async (req, res, next) => {
+router.delete('/:id', authenticate(), requireTestKitOwner(), async (req, res, next) => {
   const userId = get(req, 'user.id')
   const idTestKit = +req.params.id
   
   try {
     const testKit = await TestKitService.getDetailTestKitByUserCreated(idTestKit, userId)
 
-    if (!testKit) {
-      return res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-        message: 'Test kit not found'
-      })
-    }
+    const startDate = get(testKit, 'dataValues.startDate')
 
-    if (examHasStart(testKit?.dataValues?.startDate)) {
+    if (examHasStart(startDate)) {
       return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam has started'})
     }
 
@@ -108,11 +103,14 @@ router.get('/question-to-test/:id', authenticate(), async (req, res, next) => {
   try {
     const testKit = await TestKitService.getDetailTestKitById(idTestKit)
 
-    if (!examHasStart(testKit?.dataValues?.startDate)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam not started'})
+    const startDate = get(testKit, 'dataValues.startDate')
+    const duration = get(testKit, 'dataValues.duration')
+
+    if (!examHasStart(startDate)) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: TEST_KIT_STATUS.STARTED})
     }
-    if (overExamTime(testKit?.dataValues?.startDate, testKit?.dataValues?.duration)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam ended'})
+    if (overExamTime(duration)) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: TEST_KIT_STATUS.ENDED})
     }
 
     const questions = await QuestionService.getQuestionForTestKit(idTestKit)
