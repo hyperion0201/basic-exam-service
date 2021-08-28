@@ -1,3 +1,4 @@
+/* eslint-disable node/no-deprecated-api */
 
 import cryptoNode from 'crypto'
 
