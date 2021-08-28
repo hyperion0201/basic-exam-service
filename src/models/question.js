@@ -15,7 +15,8 @@ export default function (sequelize) {
       values: Object.values(enums.QUESTION_TYPES)
     },
     score: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      validate: {min: 1}
     }
   }
 
