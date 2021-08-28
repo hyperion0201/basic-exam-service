@@ -9,7 +9,7 @@ export async function createUser(payload = {}) {
   const {password} = payload
 
   try {
-    const hashed = hashPasswordSync(password)
+    const hashed = password ? hashPasswordSync(password) : null
     return await db.User.create({
       ...payload,
       password: hashed,

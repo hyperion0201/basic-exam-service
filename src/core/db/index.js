@@ -18,7 +18,7 @@ const db = new Sequelize({
   database: DB_NAME,
   logQueryParameters: true,
   benchmark: true,
-  logging: DB_LOGGING_ENABLED
+  logging: false
 })
 
 const modelDefiners = Object.values(models)
