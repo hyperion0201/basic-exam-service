@@ -14,6 +14,8 @@ import ServerError from '../utils/custom-error'
 import {generateAccessToken} from '../utils/jwt'
 import {verifyPasswordSync, generateResetPassword} from '../utils/password'
 
+const DASHBOARD_URL = 'https://online-exam-2021.herokuapp.com'
+
 const router = express.Router()
 
 router.get('/google', (req, res, next) => {
@@ -132,12 +134,10 @@ router.get('/verification', async (req, res, next) => {
       status: enums.USER_STATUS.VERIFIED
     })
 
-    return res.json({
-      message: 'Your account is verified.'
-    })
+    return res.redirect(`${DASHBOARD_URL}/verify-success`)
   }
   catch (err) {
-    next(err)
+    return res.redirect(`${DASHBOARD_URL}/verify-error`)
   }
 })
 
