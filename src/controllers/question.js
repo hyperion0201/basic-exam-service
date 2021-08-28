@@ -9,9 +9,9 @@ import {examHasStart} from '../utils/date'
 
 const router = express.Router()
 
-router.get('/:idTestKit', authenticate(), async (req, res, next) => {
+router.get('/:id', authenticate(), async (req, res, next) => {
   const userId = get(req, 'user.id')
-  const TestKitId = +req.params.idTestKit
+  const TestKitId = +req.params.id
 
   try {
     const testKits = await TestKitService.getDetailTestKitByUserCreated(TestKitId, userId)
