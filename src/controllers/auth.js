@@ -50,9 +50,8 @@ router.get('/google/callback', async (req, res, next) => {
         user = await userService.createUser({
           email,
           role: enums.USER_ROLES.USER,
-          status: enums.USER_STATUS.VERIFIED,
           fullname: name
-        })
+        }, {setVerified: true})
       }
 
       // create signed jsonwebtoken and push it back.
@@ -61,16 +60,10 @@ router.get('/google/callback', async (req, res, next) => {
         email: user.email
       })
 
-      return res.json({
-        message: 'Login success.',
-        access_token: accessToken
-      })
+      return res.redirect(`${DASHBOARD_URL}/login-success?token=${accessToken}`)
     }
     catch (err) {
-      next(new ServerError({
-        message: 'Error',
-        err
-      }))
+      res.redirect(`${DASHBOARD_URL}`)
     }
 
   }
