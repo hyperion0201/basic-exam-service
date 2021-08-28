@@ -16,6 +16,11 @@ export const TEST_STATUS = keyMirror({
   COMPLETED: null
 })
 
+export const TEST_KIT_STATUS = keyMirror({
+  STARTED: null,
+  ENDED: null
+})
+
 export const QUESTION_TYPES = keyMirror({
   MULTIPLE: null,
   SINGLE: null

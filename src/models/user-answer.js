@@ -3,7 +3,7 @@ import {DataTypes} from 'sequelize'
 
 export default function (sequelize) {
   const schema = {
-    anwser: {
+    answer: {
       type: DataTypes.JSON
     }
   }
