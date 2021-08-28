@@ -41,7 +41,7 @@ export function authenticate(options = {}) {
       })
       if (!user) {
         return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
-          message: 'Token expired or invalid. Please re login.'
+          message: 'User not found. Please re login.'
         })
       }
 
@@ -57,10 +57,10 @@ export function authenticate(options = {}) {
       return next()
     }
     catch (err) {
-      throw new ServerError({
-        name: 'Something error when authenticate.',
+      next(new ServerError({
+        name: 'Invalid or expired token.',
         err
-      })
+      }))
     }
   }
 }
