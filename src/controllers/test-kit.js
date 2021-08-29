@@ -107,7 +107,7 @@ router.get('/question-to-test/:id', authenticate(), async (req, res, next) => {
     const duration = get(testKit, 'dataValues.duration')
 
     if (!examHasStart(startDate)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: TEST_KIT_STATUS.STARTED})
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: TEST_KIT_STATUS.NOT_START})
     }
     if (overExamTime(duration)) {
       return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: TEST_KIT_STATUS.ENDED})

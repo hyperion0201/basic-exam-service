@@ -17,7 +17,7 @@ export const TEST_STATUS = keyMirror({
 })
 
 export const TEST_KIT_STATUS = keyMirror({
-  STARTED: null,
+  NOT_START: null,
   ENDED: null
 })
 
