@@ -4,8 +4,8 @@ import {
   DB_PORT,
   DB_NAME,
   DB_PASSWORD,
-  DB_USER,
-  DB_LOGGING_ENABLED
+  DB_USER
+  //DB_LOGGING_ENABLED
 } from '../../configs'
 import * as models from '../../models'
 
