@@ -70,7 +70,7 @@ router.get('/google/callback', async (req, res, next) => {
 })
 
 router.post('/login', async (req, res, next) => {
-  const {email, password} = req.body
+  const {email = '', password = ''} = req.body
   const user = await userService.getUser({
     where: {
       email
