@@ -1,3 +1,4 @@
+import cors from 'cors'
 import debug from 'debug'
 import express from 'express'
 import {ROOT_APP_NAMESPACE, SERVER_PORT} from './configs'
@@ -11,17 +12,21 @@ import 'express-async-errors'
 async function initialize(cb) {
   const app = express()
 
+  app.use(cors())
+
   // register middlewares
   app.use(express.json())
   combineRouters(app, routers)
 
-  app.get('/',
+  app.get(
+    '/',
     authenticate({
       requiredAdmin: true
     }),
     async (req, res, next) => {
       res.json(req.user)
-    })
+    }
+  )
 
   // error middleware should be register at the end of express instance.
   app.use(errorHandler)
