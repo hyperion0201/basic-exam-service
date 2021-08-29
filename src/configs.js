@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 // declare env variables that required for app
 
-export const SERVER_PORT = Number(process.env.SERVER_PORT) || 3000
+export const SERVER_PORT = Number(process.env.SERVER_PORT) || 3001
 
 export const DEBUGGING_ENABLED = process.env.DEBUGGING_ENABLED === 'true'
 

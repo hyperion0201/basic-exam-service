@@ -2,7 +2,7 @@
 import express from 'express'
 import get from 'lodash/get'
 import {authenticate} from '../middlewares/auth'
-import {requireTestKitOwner} from '../middlewares/ownerTestKit'
+import {requireTestKitOwner} from '../middlewares/test-kit'
 import * as QuestionService from '../services/question'
 import * as TestKitService from '../services/test-kit'
 import {HTTP_STATUS_CODES, TEST_KIT_STATUS} from '../utils/constants'
@@ -29,7 +29,7 @@ router.get('/:id', authenticate(), async (req, res, next) => {
     const testKits = await TestKitService.getDetailTestKitByUserCreated(idTestKit, idUser)
 
     if (!testKits) return res.status(HTTP_STATUS_CODES.NOT_FOUND).end()
-    
+
     res.json(testKits)
   }
   catch (err) {
@@ -40,7 +40,7 @@ router.get('/:id', authenticate(), async (req, res, next) => {
 router.post('/', authenticate(), async (req, res, next) => {
   const payload = req.body
   payload.createdBy = get(req, 'user.id')
-  
+
   try {
     const testKit = await TestKitService.createTestKit(payload)
     res.json(testKit)
@@ -58,7 +58,7 @@ router.put('/:id', authenticate(), requireTestKitOwner(), async (req, res, next)
 
   const idTestKit = +req.params.id
   const payload = req.body
-  
+
   try {
     const testKit = await TestKitService.getDetailTestKitById(idTestKit)
 
@@ -67,7 +67,7 @@ router.put('/:id', authenticate(), requireTestKitOwner(), async (req, res, next)
     if (examHasStart(startDate)) {
       return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam has started'})
     }
-    
+
     await TestKitService.updateTestKit(payload, idTestKit)
     res.json({message: 'Update success'})
   }
@@ -79,7 +79,7 @@ router.put('/:id', authenticate(), requireTestKitOwner(), async (req, res, next)
 router.delete('/:id', authenticate(), requireTestKitOwner(), async (req, res, next) => {
   const userId = get(req, 'user.id')
   const idTestKit = +req.params.id
-  
+
   try {
     const testKit = await TestKitService.getDetailTestKitByUserCreated(idTestKit, userId)
 
@@ -99,7 +99,7 @@ router.delete('/:id', authenticate(), requireTestKitOwner(), async (req, res, ne
 
 router.get('/question-to-test/:id', authenticate(), async (req, res, next) => {
   const idTestKit = +req.params.id
-  
+
   try {
     const testKit = await TestKitService.getDetailTestKitById(idTestKit)
 
@@ -114,7 +114,7 @@ router.get('/question-to-test/:id', authenticate(), async (req, res, next) => {
     }
 
     const questions = await QuestionService.getQuestionForTestKit(idTestKit)
-    
+
     res.json({data: questionToTestClient(questions)})
   }
   catch (err) {

@@ -5,16 +5,16 @@ import * as enums from '../utils/constants'
 import ServerError from '../utils/custom-error'
 import {hashPasswordSync} from '../utils/password'
 
-export async function createUser(payload = {}) {
+export async function createUser(payload = {}, opts = {}) {
   const {password} = payload
-
+  const {setVerified = false} = opts
   try {
     const hashed = password ? hashPasswordSync(password) : null
     return await db.User.create({
       ...payload,
       password: hashed,
       role: enums.USER_ROLES.USER,
-      status: enums.USER_STATUS.NOT_VERIFIED
+      status: setVerified ? enums.USER_STATUS.VERIFIED : enums.USER_STATUS.NOT_VERIFIED
     })
   }
   catch (err) {

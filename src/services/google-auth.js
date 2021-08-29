@@ -8,7 +8,7 @@ import ServerError from '../utils/custom-error'
 
 const OAuth2 = google.auth.OAuth2
 
-const baseUrl = 'https://f4de-118-70-66-28.ngrok.io'
+const baseUrl = 'https://wiflyhomework.com/exam-api'
 
 const GOOGLE_OAUTH2_CONFIGURATION = {
   JWTsecret: JWT_SECRET,

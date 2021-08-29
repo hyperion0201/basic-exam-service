@@ -1,14 +1,21 @@
 /* eslint-disable camelcase */
 /* eslint-disable babel/new-cap */
 import express from 'express'
+import get from 'lodash/get'
+import pick from 'lodash/pick'
+import {RESET_PASSWORD_SECRET} from '../configs'
+import {authenticate} from '../middlewares/auth'
 import sendEmail from '../services/email'
 import GoogleOAuth2 from '../services/google-auth'
 import * as userService from '../services/user'
 import {HTTP_STATUS_CODES} from '../utils/constants'
 import * as enums from '../utils/constants'
-import ServerError from '../utils/custom-error'
+import {encrypt, decrypt} from '../utils/crypto'
+//import ServerError from '../utils/custom-error'
 import {generateAccessToken} from '../utils/jwt'
 import {verifyPasswordSync, generateResetPassword} from '../utils/password'
+
+const DASHBOARD_URL = 'https://online-exam-2021.herokuapp.com'
 
 const router = express.Router()
 
@@ -44,9 +51,8 @@ router.get('/google/callback', async (req, res, next) => {
         user = await userService.createUser({
           email,
           role: enums.USER_ROLES.USER,
-          status: enums.USER_STATUS.VERIFIED,
           fullname: name
-        })
+        }, {setVerified: true})
       }
 
       // create signed jsonwebtoken and push it back.
@@ -55,18 +61,11 @@ router.get('/google/callback', async (req, res, next) => {
         email: user.email
       })
 
-      return res.json({
-        message: 'Login success.',
-        access_token: accessToken
-      })
+      return res.redirect(`${DASHBOARD_URL}/login-success/${accessToken}`)
     }
     catch (err) {
-      next(new ServerError({
-        message: 'Error',
-        err
-      }))
+      res.redirect(`${DASHBOARD_URL}`)
     }
-
   }
 })
 
@@ -100,21 +99,93 @@ router.post('/login', async (req, res, next) => {
 
   res.json({
     message: 'Login success.',
-    access_token: token
+    access_token: token,
+    role: user.role
   })
+})
+
+router.get('/verification', async (req, res, next) => {
+  const code = req.query.code
+  try {
+    const email = decrypt(code, RESET_PASSWORD_SECRET)
+    const user = await userService.getUser({
+      where: {
+        email
+      }
+    })
+
+    if (!user) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+        message: 'Link is invalid or expired.'
+      })
+    }
+
+    await userService.updateUser({
+      where: {
+        email
+      }
+    }, {
+      status: enums.USER_STATUS.VERIFIED
+    })
+
+    return res.redirect(`${DASHBOARD_URL}/verify-success`)
+  }
+  catch (err) {
+    return res.redirect(`${DASHBOARD_URL}/verify-error`)
+  }
 })
 
 router.post('/register', async (req, res, next) => {
   const payload = req.body
   try {
     const user = await userService.createUser(payload)
-
+    const userEmail = get(user, 'email')
+    const code = encrypt(userEmail, RESET_PASSWORD_SECRET)
+    const verifyUrl = `https://wiflyhomework.com/exam-api/v1/auth/verification?code=${code}`
+    await sendEmail(userEmail,
+      '[Basic Exam] - Verify your new account',
+      `Hi.
+       Please go to this link to verify your account: ${verifyUrl}
+       Thanks.
+    `)
     res.json(user)
   }
   catch (err) {
     next(err)
   }
 })
+
+router.post('/change-password',
+  authenticate(),
+  async (req, res, next) => {
+    const userId = get(req, 'user.id')
+    const currentHashedPass = get(req, 'user.password')
+    const oldPass = get(req, 'body.oldPass')
+    const newPass = get(req, 'body.newPass')
+
+    const isPasswordCorrect = verifyPasswordSync(oldPass, currentHashedPass)
+    if (!isPasswordCorrect) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+        message: 'Password not match.'
+      })
+    }
+    
+    try {
+      await userService.updatePassword({
+        where: {
+          id: userId
+        }
+      }, newPass)
+
+      return res.json({
+        message: 'Change password successfully.'
+      })
+    }
+    catch (err) {
+      next(err)
+    }
+  }
+)
 
 router.post('/reset-password', async (req, res, next) => {
   const {email} = req.body
@@ -125,7 +196,7 @@ router.post('/reset-password', async (req, res, next) => {
   })
   
   if (!user) {
-    return res.sendStatus(HTTP_STATUS_CODES.BAD_REQUEST).send({
+    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
       message: 'Email not found.'
     })
   }
@@ -152,6 +223,39 @@ router.post('/reset-password', async (req, res, next) => {
     res.json({
       message: 'Reset password successfully'
     })
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
+router.get('/', authenticate(), async (req, res, next) => {
+  const userId = get(req, 'user.id')
+    
+  try {
+    const user = await userService.getUser({
+      where: {id: userId}
+    })
+
+    res.json(pick(user, ['fullname', 'email', 'role']))
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
+router.patch('/', authenticate(), async (req, res, next) => {
+  const userId = get(req, 'user.id')
+  const infoUserUpdate = get(req, 'body')
+    
+  try {
+    await userService.updateUser({
+      where: {
+        id: userId
+      }
+    }, infoUserUpdate)
+
+    res.json({message: 'Update success'})
   }
   catch (err) {
     next(err)
