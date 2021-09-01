@@ -40,7 +40,7 @@ router.get('/:id', authenticate(), async (req, res, next) => {
 router.post('/', authenticate(), async (req, res, next) => {
   const questions = get(req, 'body')
   questions.choices = JSON.stringify(questions.choices)
-  
+
   try {
     const testKit = await TestKitService.getDetailTestKitById(questions.testKitId)
 
@@ -83,19 +83,19 @@ router.put('/:id', authenticate(), async (req, res, next) => {
 router.delete('/:id', authenticate(), async (req, res, next) => {
   const idQuestion = +req.params.id
   const userId = +get(req, 'user.id')
-  const idTestKit = +get(req, 'body.testKitId')
+  const idTestKit = +get(req, 'query.testkitid')
 
   try {
     const testKit = await TestKitService.getDetailTestKitByUserCreated(idTestKit, userId)
     const question = await QuestionService.getDetailQuestion(idQuestion)
 
-    if (!question.testKitId) {
-      await QuestionService.deleteQuestion(idQuestion)
-      return res.json({message: `Delete question id ${idQuestion} success`})
+    if (!testKit || !question || question.testKitId !== idTestKit) {
+      return res.status(HTTP_STATUS_CODES.NOT_FOUND).json({message: 'Question not found'})
     }
 
-    if (!testKit || !question || !question.testKitId || question.testKitId !== idTestKit) {
-      return res.status(HTTP_STATUS_CODES.NOT_FOUND).json({message: 'Question not found'})
+    if (!question?.testKitId) {
+      await QuestionService.deleteQuestion(idQuestion)
+      return res.json({message: `Delete question id ${idQuestion} success`})
     }
 
     await QuestionService.deleteQuestion(idQuestion)
