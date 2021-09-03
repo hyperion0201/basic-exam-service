@@ -37,6 +37,22 @@ router.get('/:id', authenticate(), async (req, res, next) => {
   }
 })
 
+router.get('/info-to-test/:id', authenticate(), async (req, res, next) => {
+  const idTestKit = +req.params.id
+  
+  try {
+    const testKit = await TestKitService.getDetailTestKitById(idTestKit)
+
+    if (!testKit) return res.status(HTTP_STATUS_CODES.NOT_FOUND).end()
+
+    delete testKit?.dataValues?.createdBy
+    res.json(testKit)
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
 router.post('/', authenticate(), async (req, res, next) => {
   const payload = req.body
   payload.createdBy = get(req, 'user.id')
