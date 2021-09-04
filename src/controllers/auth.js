@@ -229,6 +229,36 @@ router.post('/reset-password', async (req, res, next) => {
   }
 })
 
+router.get('/all', authenticate({requiredAdmin: true}), async (req, res, next) => {
+  try {
+    const users = await userService.getAllUsers({where: {role: enums.USER_ROLES.USER}})
+
+    const userFormat = users.map((item) => pick(item, ['fullname', 'email', 'role', 'status']))
+    
+    res.json(userFormat)
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
+router.patch('/:id/status', authenticate({requiredAdmin: true}), async (req, res, next) => {
+  const idUser = +req.params.id
+  const payload = get(req, 'body')
+
+  if (![enums.USER_STATUS.DISABLED, enums.USER_STATUS.VERIFIED].includes(payload.status)) {
+    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'invalid status'})
+  }
+  try {
+    await userService.updateUser({where: {id: idUser}}, payload)
+    
+    res.json({message: 'Change status success'})
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
 router.get('/', authenticate(), async (req, res, next) => {
   const userId = get(req, 'user.id')
     
