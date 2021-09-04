@@ -1,13 +1,13 @@
 /* eslint-disable babel/new-cap */
 import express from 'express'
 import get from 'lodash/get'
-import {authenticate} from '../middlewares/auth'
+import { authenticate } from '../middlewares/auth'
 import * as FormContact from '../services/form-contact'
-import {HTTP_STATUS_CODES} from '../utils/constants'
+import { HTTP_STATUS_CODES } from '../utils/constants'
 
 const router = express.Router()
 
-router.get('/', authenticate({requiredAdmin: true}), async (req, res, next) => {
+router.get('/', authenticate({ requiredAdmin: true }), async (req, res, next) => {
   try {
     const formContacts = await FormContact.getFormContact()
     res.json(formContacts)
@@ -17,7 +17,7 @@ router.get('/', authenticate({requiredAdmin: true}), async (req, res, next) => {
   }
 })
 
-router.get('/:id', authenticate({requiredAdmin: true}), async (req, res, next) => {
+router.get('/:id', authenticate({ requiredAdmin: true }), async (req, res, next) => {
   const idFormContract = +req.params.id
   try {
     const formContact = await FormContact.getDetailFormContact(idFormContract)
@@ -43,11 +43,11 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-router.patch('/mark-done/:id', authenticate({requiredAdmin: true}), async (req, res, next) => {
+router.patch('/mark-done/:id', authenticate({ requiredAdmin: true }), async (req, res, next) => {
   const idFormContract = +get(req, 'params.id')
   try {
     await FormContact.updateMarkDone(idFormContract)
-    res.json({message: 'mark done'})
+    res.json({ message: 'mark done' })
   }
   catch (err) {
     next(err)

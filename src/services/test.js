@@ -3,7 +3,7 @@ import ServerError from '../utils/custom-error'
 
 export async function getTestsById(id) {
   try {
-    return await db.Test.findOne({where: {id}})
+    return await db.Test.findOne({ where: { id } })
   }
   catch (err) {
     throw new ServerError({
@@ -15,7 +15,7 @@ export async function getTestsById(id) {
 
 export async function getTestsByIdUser(id) {
   try {
-    return await db.Test.findAll({where: {userId: id}})
+    return await db.Test.findAll({ where: { userId: id } })
   }
   catch (err) {
     throw new ServerError({
@@ -27,7 +27,7 @@ export async function getTestsByIdUser(id) {
 
 export async function getTestsByIdTestKit(id) {
   try {
-    return await db.Test.findAll({where: {testKitId: id}})
+    return await db.Test.findAll({ where: { testKitId: id } })
   }
   catch (err) {
     throw new ServerError({
@@ -56,7 +56,7 @@ export async function updateTest(payload = {}, idQuestion) {
     return await db.Test.update({
       ...payload
     }, {
-      where: {id: idQuestion}
+      where: { id: idQuestion }
     })
   }
   catch (err) {

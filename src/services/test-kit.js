@@ -20,7 +20,7 @@ export async function updateTestKit(payload = {}, id) {
     return await db.TestKit.update({
       ...payload
     }, {
-      where: {id}
+      where: { id }
     })
   }
   catch (err) {
@@ -33,7 +33,7 @@ export async function updateTestKit(payload = {}, id) {
 
 export async function getTestKit(id) {
   try {
-    return await db.TestKit.findAll({where: {createdBy: id}})
+    return await db.TestKit.findAll({ where: { createdBy: id } })
   }
   catch (err) {
     throw new ServerError({
@@ -45,7 +45,7 @@ export async function getTestKit(id) {
 
 export async function getDetailTestKitById(idTestKit) {
   try {
-    return await db.TestKit.findOne({where: {id: idTestKit}})
+    return await db.TestKit.findOne({ where: { id: idTestKit } })
   }
   catch (err) {
     throw new ServerError({
@@ -57,7 +57,7 @@ export async function getDetailTestKitById(idTestKit) {
 
 export async function getDetailTestKitByUserCreated(idTestKit, idUserCreate) {
   try {
-    return await db.TestKit.findOne({where: {id: idTestKit, createdBy: idUserCreate}})
+    return await db.TestKit.findOne({ where: { id: idTestKit, createdBy: idUserCreate } })
   }
   catch (err) {
     throw new ServerError({
@@ -69,7 +69,7 @@ export async function getDetailTestKitByUserCreated(idTestKit, idUserCreate) {
 
 export async function deleteTestKit(idTestKit) {
   try {
-    return await db.TestKit.destroy({where: {id: idTestKit}})
+    return await db.TestKit.destroy({ where: { id: idTestKit } })
   }
   catch (err) {
     throw new ServerError({

@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken'
 import get from 'lodash/get'
-import {JWT_SECRET} from '../configs'
-import {getUser, isAdmin} from '../services/user'
-import {HTTP_STATUS_CODES} from '../utils/constants'
+import { JWT_SECRET } from '../configs'
+import { getUser, isAdmin } from '../services/user'
+import { HTTP_STATUS_CODES } from '../utils/constants'
 import ServerError from '../utils/custom-error'
 
 function extractTokenFromRequest(req) {
@@ -21,7 +21,7 @@ function verifyToken(token) {
 }
 
 export function authenticate(options = {}) {
-  const {requiredAdmin = false} = options
+  const { requiredAdmin = false } = options
 
   return async (req, res, next) => {
     const token = extractTokenFromRequest(req)

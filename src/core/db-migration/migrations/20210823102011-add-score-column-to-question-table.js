@@ -9,8 +9,8 @@ module.exports = {
         'score',
         {
           type: Sequelize.DataTypes.INTEGER
-        },
-        {transaction}
+        }
+          
       )
       await transaction.commit()
     }
@@ -29,7 +29,7 @@ module.exports = {
         {
           type: Sequelize.DataTypes.INTEGER
         },
-        {transaction}
+        { transaction }
       )
       await transaction.commit()
     }

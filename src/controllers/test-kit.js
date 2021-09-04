@@ -1,13 +1,13 @@
 /* eslint-disable babel/new-cap */
 import express from 'express'
 import get from 'lodash/get'
-import {authenticate} from '../middlewares/auth'
-import {requireTestKitOwner} from '../middlewares/test-kit'
+import { authenticate } from '../middlewares/auth'
+import { requireTestKitOwner } from '../middlewares/test-kit'
 import * as QuestionService from '../services/question'
 import * as TestKitService from '../services/test-kit'
-import {HTTP_STATUS_CODES, TEST_KIT_STATUS} from '../utils/constants'
-import {examHasStart, overExamTime} from '../utils/date'
-import {questionToTestClient} from '../utils/test-kit'
+import { HTTP_STATUS_CODES, TEST_KIT_STATUS } from '../utils/constants'
+import { examHasStart, overExamTime } from '../utils/date'
+import { questionToTestClient } from '../utils/test-kit'
 
 const router = express.Router()
 
@@ -81,11 +81,11 @@ router.put('/:id', authenticate(), requireTestKitOwner(), async (req, res, next)
     const startDate = get(testKit, 'dataValues.startDate')
 
     if (examHasStart(startDate)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam has started'})
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: 'The exam has started' })
     }
 
     await TestKitService.updateTestKit(payload, idTestKit)
-    res.json({message: 'Update success'})
+    res.json({ message: 'Update success' })
   }
   catch (err) {
     next(err)
@@ -102,11 +102,11 @@ router.delete('/:id', authenticate(), requireTestKitOwner(), async (req, res, ne
     const startDate = get(testKit, 'dataValues.startDate')
 
     if (examHasStart(startDate)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam has started'})
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: 'The exam has started' })
     }
 
     await TestKitService.deleteTestKit(idTestKit)
-    res.json({message: 'Delete success'})
+    res.json({ message: 'Delete success' })
   }
   catch (err) {
     next(err)
@@ -123,15 +123,15 @@ router.get('/question-to-test/:id', authenticate(), async (req, res, next) => {
     const duration = get(testKit, 'dataValues.duration')
 
     if (!examHasStart(startDate)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: TEST_KIT_STATUS.NOT_START})
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: TEST_KIT_STATUS.NOT_START })
     }
     if (overExamTime(duration)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: TEST_KIT_STATUS.ENDED})
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: TEST_KIT_STATUS.ENDED })
     }
 
     const questions = await QuestionService.getQuestionForTestKit(idTestKit)
 
-    res.json({data: questionToTestClient(questions)})
+    res.json({ data: questionToTestClient(questions) })
   }
   catch (err) {
     next(err)

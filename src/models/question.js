@@ -1,11 +1,11 @@
 /* eslint-disable babel/new-cap */
-import {DataTypes} from 'sequelize'
+import { DataTypes } from 'sequelize'
 import * as enums from '../utils/constants'
 
 export default function (sequelize) {
   const schema = {
     title: {
-      type: DataTypes.TEXT({length: 'medium'})
+      type: DataTypes.TEXT({ length: 'medium' })
     },
     choices: {
       type: DataTypes.JSON
@@ -16,7 +16,7 @@ export default function (sequelize) {
     },
     score: {
       type: DataTypes.INTEGER,
-      validate: {min: 1}
+      validate: { min: 1 }
     }
   }
 

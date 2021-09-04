@@ -8,7 +8,8 @@ module.exports = {
     'import'
   ],
   env: {
-    node: true
+    node: true,
+    mocha: true
   },
   globals: {
     describe: true,
@@ -18,6 +19,7 @@ module.exports = {
   },
   rules: {
     eqeqeq: 0,
+    indent: ['error', 2],
     'no-var': 2,
     'no-console': 2,
     'no-alert': 2,
@@ -40,7 +42,7 @@ module.exports = {
     'padded-blocks': 0,
     'newline-after-var': 0,
     'spaced-comment': 0,
-    'max-len': [2, 100, 4, {ignoreUrls: true}
+    'max-len': [2, 200, 4, { ignoreUrls: true }
     ],
     'array-bracket-spacing': [
       2,
@@ -58,7 +60,7 @@ module.exports = {
     ],
     'object-curly-spacing': [
       2,
-      'never'
+      'always'
     ],
     'generator-star-spacing': 0,
   

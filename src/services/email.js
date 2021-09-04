@@ -1,6 +1,6 @@
 import debug from 'debug'
 import nodemailer from 'nodemailer'
-import {EMAIL_PASSWORD, EMAIL_USERNAME} from '../configs'
+import { EMAIL_PASSWORD, EMAIL_USERNAME } from '../configs'
 import ServerError from '../utils/custom-error'
 
 const ns = 'send-mail'
