@@ -131,7 +131,12 @@ router.get('/question-to-test/:id', authenticate(), async (req, res, next) => {
 
     const questions = await QuestionService.getQuestionForTestKit(idTestKit)
 
-    res.json({ data: questionToTestClient(questions) })
+    res.json({
+      data: questionToTestClient(questions.sort(function (a, b) {
+        return a.id - b.id
+      }))
+    })
+    
   }
   catch (err) {
     next(err)

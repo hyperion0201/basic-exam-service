@@ -30,7 +30,11 @@ router.get('/:id', authenticate(), async (req, res, next) => {
       return { ...data, choices: JSON.parse(data.choices) }
     })
 
-    res.json({ data: questions })
+    res.json({
+      data: questions.sort(function (a, b) {
+        return a.id - b.id
+      })
+    })
   }
   catch (err) {
     next(err)
