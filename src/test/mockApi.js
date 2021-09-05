@@ -1,6 +1,6 @@
 import express from 'express'
-import { errorHandler } from '../middlewares/error'
-import { combineRouters } from '../utils/setup'
+import {errorHandler} from '../middlewares/error'
+import {combineRouters} from '../utils/setup'
 
 export default (controller, SERVER_PORT = 3333, cb) => {
   const app = express()

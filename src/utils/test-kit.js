@@ -8,7 +8,7 @@ export function questionToTestClient(questions) {
       delete itemAnswer.is_correct
       return itemAnswer
     })
-    return { ...data, choices: answer }
+    return {...data, choices: answer}
   })
   return deleteAnswerCorrect
 }

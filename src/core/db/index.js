@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize'
+import {Sequelize} from 'sequelize'
 import {
   DB_HOST,
   DB_PORT,
@@ -33,19 +33,19 @@ for (const model of Object.keys(db.models)) {
 }
 
 // execute any extra setup after the models are defined, such as adding associations.
-db.User.hasMany(db.Test, { foreignKey: 'userId', as: 'tests' })
-db.Test.belongsTo(db.User, { foreignKey: 'userId' })
+db.User.hasMany(db.Test, {foreignKey: 'userId', as: 'tests'})
+db.Test.belongsTo(db.User, {foreignKey: 'userId'})
 
-db.User.hasMany(db.TestKit, { foreignKey: 'createdBy', as: 'testKits' })
-db.TestKit.belongsTo(db.User, { foreignKey: 'createdBy' })
+db.User.hasMany(db.TestKit, {foreignKey: 'createdBy', as: 'testKits'})
+db.TestKit.belongsTo(db.User, {foreignKey: 'createdBy'})
 
-db.TestKit.hasMany(db.Test, { foreignKey: 'testKitId' })
-db.Test.belongsTo(db.TestKit, { foreignKey: 'testKitId' })
+db.TestKit.hasMany(db.Test, {foreignKey: 'testKitId'})
+db.Test.belongsTo(db.TestKit, {foreignKey: 'testKitId'})
 
-db.TestKit.hasMany(db.Question, { foreignKey: 'testKitId', as: 'questions' })
-db.Question.belongsTo(db.TestKit, { foreignKey: 'testKitId' })
+db.TestKit.hasMany(db.Question, {foreignKey: 'testKitId', as: 'questions'})
+db.Question.belongsTo(db.TestKit, {foreignKey: 'testKitId'})
 
-db.UserAnswer.belongsTo(db.Question, { foreignKey: 'questionId' })
-db.UserAnswer.belongsTo(db.User, { foreignKey: 'userId' })
+db.UserAnswer.belongsTo(db.Question, {foreignKey: 'questionId'})
+db.UserAnswer.belongsTo(db.User, {foreignKey: 'userId'})
 
 export default db

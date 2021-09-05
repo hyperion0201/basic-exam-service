@@ -2,7 +2,7 @@ import debug from 'debug'
 import db from '../core/db'
 
 export function setupLogStash(options) {
-  const { debugNamespace = '*' } = options
+  const {debugNamespace = '*'} = options
   debug.enable(debugNamespace)
 }
 
@@ -17,7 +17,7 @@ export async function initDatabaseConnection() {
 
 export function combineRouters(app, routers) {
   for (const router of Object.values(routers)) {
-    const { prefix, routerInstance } = router
+    const {prefix, routerInstance} = router
     app.use(prefix, routerInstance)
   }
 }

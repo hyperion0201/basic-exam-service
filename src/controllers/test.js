@@ -1,6 +1,6 @@
 /* eslint-disable babel/new-cap */
 import express from 'express'
-import { authenticate } from '../middlewares/auth'
+import {authenticate} from '../middlewares/auth'
 //import * as TestService from '../services/test'
 //import {HTTP_STATUS_CODES} from '../utils/constants'
 

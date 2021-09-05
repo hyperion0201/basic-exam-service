@@ -1,11 +1,11 @@
-import { debug } from 'debug'
-import { HTTP_STATUS_CODES } from '../utils/constants'
+import {debug} from 'debug'
+import {HTTP_STATUS_CODES} from '../utils/constants'
 
 const FALLBACK_ERROR_NS = 'error-fallback'
 
 export function errorHandler(err, req, res, next) {
   if (err.logDetail) {
-    err.logDetail({ omitStackTrace: false })
+    err.logDetail({omitStackTrace: false})
   }
   else {
     debug.log(FALLBACK_ERROR_NS, 'Found unexpected error : ', err)

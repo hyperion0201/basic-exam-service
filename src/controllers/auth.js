@@ -3,17 +3,17 @@
 import express from 'express'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
-import { RESET_PASSWORD_SECRET } from '../configs'
-import { authenticate } from '../middlewares/auth'
+import {RESET_PASSWORD_SECRET} from '../configs'
+import {authenticate, requireStatusRole} from '../middlewares/auth'
 import sendEmail from '../services/email'
 import GoogleOAuth2 from '../services/google-auth'
 import * as userService from '../services/user'
-import { HTTP_STATUS_CODES } from '../utils/constants'
+import {HTTP_STATUS_CODES} from '../utils/constants'
 import * as enums from '../utils/constants'
-import { encrypt, decrypt } from '../utils/crypto'
+import {encrypt, decrypt} from '../utils/crypto'
 //import ServerError from '../utils/custom-error'
-import { generateAccessToken } from '../utils/jwt'
-import { verifyPasswordSync, generateResetPassword } from '../utils/password'
+import {generateAccessToken} from '../utils/jwt'
+import {verifyPasswordSync, generateResetPassword} from '../utils/password'
 
 const DASHBOARD_URL = 'https://online-exam-2021.herokuapp.com'
 
@@ -36,7 +36,7 @@ router.get('/google/callback', async (req, res, next) => {
       googleOAuth2Client.setCredentials(tokenResponse)
       const response = await googleOAuth2Client.getUserInfo()
 
-      const { email, name, verified_email } = response.data
+      const {email, name, verified_email} = response.data
 
       if (!verified_email) {
         return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
@@ -48,11 +48,14 @@ router.get('/google/callback', async (req, res, next) => {
       // we don't need to send a verification email.
       let user = await userService.isUserWithEmailExist(email)
       if (!user) {
-        user = await userService.createUser({
-          email,
-          role: enums.USER_ROLES.USER,
-          fullname: name
-        }, { setVerified: true })
+        user = await userService.createUser(
+          {
+            email,
+            role: enums.USER_ROLES.USER,
+            fullname: name
+          },
+          {setVerified: true}
+        )
       }
 
       // create signed jsonwebtoken and push it back.
@@ -70,12 +73,8 @@ router.get('/google/callback', async (req, res, next) => {
 })
 
 router.post('/login', async (req, res, next) => {
-  const { email = '', password = '' } = req.body
-  const user = await userService.getUser({
-    where: {
-      email
-    }
-  })
+  const {email = '', password = ''} = req.body
+  const user = await userService.getUser({where: {email}})
 
   if (!user) {
     return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
@@ -108,11 +107,7 @@ router.get('/verification', async (req, res, next) => {
   const code = req.query.code
   try {
     const email = decrypt(code, RESET_PASSWORD_SECRET)
-    const user = await userService.getUser({
-      where: {
-        email
-      }
-    })
+    const user = await userService.getUser({where: {email}})
 
     if (!user) {
       return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
@@ -120,13 +115,10 @@ router.get('/verification', async (req, res, next) => {
       })
     }
 
-    await userService.updateUser({
-      where: {
-        email
-      }
-    }, {
-      status: enums.USER_STATUS.VERIFIED
-    })
+    await userService.updateUser(
+      {where: {email}},
+      {status: enums.USER_STATUS.VERIFIED}
+    )
 
     return res.redirect(`${DASHBOARD_URL}/verify-success`)
   }
@@ -146,8 +138,8 @@ router.post('/register', async (req, res, next) => {
       '[Basic Exam] - Verify your new account',
       `Hi.
        Please go to this link to verify your account: ${verifyUrl}
-       Thanks.
-    `)
+       Thanks.`
+    )
     res.json(user)
   }
   catch (err) {
@@ -155,46 +147,35 @@ router.post('/register', async (req, res, next) => {
   }
 })
 
-router.post('/change-password',
-  authenticate(),
-  async (req, res, next) => {
-    const userId = get(req, 'user.id')
-    const currentHashedPass = get(req, 'user.password')
-    const oldPass = get(req, 'body.oldPass')
-    const newPass = get(req, 'body.newPass')
+router.post('/change-password', authenticate(), async (req, res, next) => {
+  const userId = get(req, 'user.id')
+  const currentHashedPass = get(req, 'user.password')
+  const oldPass = get(req, 'body.oldPass')
+  const newPass = get(req, 'body.newPass')
 
-    const isPasswordCorrect = verifyPasswordSync(oldPass, currentHashedPass)
-    if (!isPasswordCorrect) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
-        message: 'Password not match.'
-      })
-    }
-    
-    try {
-      await userService.updatePassword({
-        where: {
-          id: userId
-        }
-      }, newPass)
-
-      return res.json({
-        message: 'Change password successfully.'
-      })
-    }
-    catch (err) {
-      next(err)
-    }
+  const isPasswordCorrect = verifyPasswordSync(oldPass, currentHashedPass)
+  if (!isPasswordCorrect) {
+    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+      message: 'Password not match.'
+    })
   }
-)
+
+  try {
+    await userService.updatePassword({where: {id: userId}}, newPass)
+
+    return res.json({
+      message: 'Change password successfully.'
+    })
+  }
+  catch (err) {
+    next(err)
+  }
+})
 
 router.post('/reset-password', async (req, res, next) => {
-  const { email } = req.body
-  const user = await userService.getUser({
-    where: {
-      email
-    }
-  })
-  
+  const {email} = req.body
+  const user = await userService.getUser({where: {email}})
+
   if (!user) {
     return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
       message: 'Email not found.'
@@ -203,11 +184,10 @@ router.post('/reset-password', async (req, res, next) => {
 
   const resetPassword = generateResetPassword()
   try {
-    await userService.updatePassword({
-      where: {
-        id: user.id
-      }
-    }, resetPassword)
+    await userService.updatePassword(
+      {where: {id: user.id}},
+      resetPassword
+    )
 
     await sendEmail(
       email,
@@ -220,51 +200,57 @@ router.post('/reset-password', async (req, res, next) => {
      `
     )
 
-    res.json({
-      message: 'Reset password successfully'
+    res.json({message: 'Reset password successfully'})
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
+router.get('/admin/all', authenticate({requiredAdmin: true}), async (req, res, next) => {
+  try {
+    const users = await userService.getAllUsers()
+
+    const userRes = users.map((item) => {
+      const user = {...get(item, 'dataValues')}
+      delete user.password
+      return user
     })
+
+    res.json(userRes)
   }
   catch (err) {
     next(err)
   }
 })
 
-router.get('/all', authenticate({ requiredAdmin: true }), async (req, res, next) => {
-  try {
-    const users = await userService.getAllUsers({ where: { role: enums.USER_ROLES.USER } })
+router.patch('/admin/:id',
+  authenticate({requiredAdmin: true}),
+  requireStatusRole(),
+  async (req, res, next) => {
+    const idUser = +req.params.id
+    const {role, status} = get(req, 'body')
 
-    const userFormat = users.map((item) => pick(item, ['fullname', 'email', 'role', 'status']))
-    
-    res.json(userFormat)
-  }
-  catch (err) {
-    next(err)
-  }
-})
+    try {
+      const user = await userService.getUser({where: {id: idUser}})
 
-router.patch('/:id/status', authenticate({ requiredAdmin: true }), async (req, res, next) => {
-  const idUser = +req.params.id
-  const payload = get(req, 'body')
+      if (!user) return res.status(HTTP_STATUS_CODES.NOT_FOUND).json({message: 'user not found'})
 
-  if (![enums.USER_STATUS.DISABLED, enums.USER_STATUS.VERIFIED].includes(payload.status)) {
-    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: 'invalid status' })
-  }
-  try {
-    await userService.updateUser({ where: { id: idUser } }, payload)
-    
-    res.json({ message: 'Change status success' })
-  }
-  catch (err) {
-    next(err)
-  }
-})
+      await userService.updateUser({where: {id: idUser}}, {role, status})
+
+      res.json({message: 'Update success'})
+    }
+    catch (err) {
+      next(err)
+    }
+  })
 
 router.get('/', authenticate(), async (req, res, next) => {
   const userId = get(req, 'user.id')
-    
+
   try {
     const user = await userService.getUser({
-      where: { id: userId }
+      where: {id: userId}
     })
 
     res.json(pick(user, ['fullname', 'email', 'role']))
@@ -277,15 +263,11 @@ router.get('/', authenticate(), async (req, res, next) => {
 router.patch('/', authenticate(), async (req, res, next) => {
   const userId = get(req, 'user.id')
   const infoUserUpdate = get(req, 'body')
-    
-  try {
-    await userService.updateUser({
-      where: {
-        id: userId
-      }
-    }, infoUserUpdate)
 
-    res.json({ message: 'Update success' })
+  try {
+    await userService.updateUser({where: {id: userId}}, infoUserUpdate)
+
+    res.json({message: 'Update success'})
   }
   catch (err) {
     next(err)

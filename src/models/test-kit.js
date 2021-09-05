@@ -1,10 +1,10 @@
 /* eslint-disable babel/new-cap */
-import { DataTypes } from 'sequelize'
+import {DataTypes} from 'sequelize'
 
 export default function (sequelize) {
   const schema = {
     description: {
-      type: DataTypes.TEXT({ length: 'medium' })
+      type: DataTypes.TEXT({length: 'medium'})
     },
     subject: {
       type: DataTypes.STRING

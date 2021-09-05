@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 import * as TestKitService from '../services/test-kit'
-import { HTTP_STATUS_CODES } from '../utils/constants'
+import {HTTP_STATUS_CODES} from '../utils/constants'
 import ServerError from '../utils/custom-error'
 
 export function requireTestKitOwner() {

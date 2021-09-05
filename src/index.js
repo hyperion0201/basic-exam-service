@@ -1,11 +1,11 @@
 import cors from 'cors'
 import debug from 'debug'
 import express from 'express'
-import { ROOT_APP_NAMESPACE, SERVER_PORT } from './configs'
+import {ROOT_APP_NAMESPACE, SERVER_PORT} from './configs'
 import * as routers from './controllers'
-import { authenticate } from './middlewares/auth'
-import { errorHandler } from './middlewares/error'
-import { setupLogStash, initDatabaseConnection, combineRouters } from './utils/setup'
+import {authenticate} from './middlewares/auth'
+import {errorHandler} from './middlewares/error'
+import {setupLogStash, initDatabaseConnection, combineRouters} from './utils/setup'
 
 import 'express-async-errors'
 

@@ -1,4 +1,4 @@
-import { google } from 'googleapis'
+import {google} from 'googleapis'
 import {
   SERVER_PORT, JWT_SECRET,
   GOOGLE_CLIENT_ID,

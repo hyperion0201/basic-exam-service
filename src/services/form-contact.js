@@ -17,7 +17,7 @@ export async function createFormContact(payload = {}) {
 
 export async function getDetailFormContact(id) {
   try {
-    return await db.FormContact.findOne({ where: { id } })
+    return await db.FormContact.findOne({where: {id}})
   }
   catch (err) {
     throw new ServerError({
@@ -44,7 +44,7 @@ export async function updateMarkDone(id) {
     return await db.FormContact.update({
       markDone: true
     }, {
-      where: { id }
+      where: {id}
     })
   }
   catch (err) {
@@ -57,7 +57,7 @@ export async function updateMarkDone(id) {
 
 export async function deleteFormContact(id) {
   try {
-    return await db.FormContact.destroy({ where: { id } })
+    return await db.FormContact.destroy({where: {id}})
   }
   catch (err) {
     throw new ServerError({
