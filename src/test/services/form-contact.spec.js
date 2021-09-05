@@ -1,7 +1,13 @@
-import { expect } from 'chai'
-import { createSandbox } from 'sinon'
+import {expect} from 'chai'
+import {createSandbox} from 'sinon'
 import db from '../../core/db'
-import { createFormContact, getDetailFormContact, getFormContact, updateMarkDone, deleteFormContact } from '../../services/form-contact'
+import {
+  createFormContact,
+  getDetailFormContact,
+  getFormContact,
+  updateMarkDone,
+  deleteFormContact
+} from '../../services/form-contact'
 import ServerError from '../../utils/custom-error'
 
 describe('Form Contact Service', () => {

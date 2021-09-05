@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-expressions */
-import { expect } from 'chai'
+import {expect} from 'chai'
 import cryptoNode from 'crypto'
-import { createSandbox } from 'sinon'
-import { encrypt, decrypt } from '../../utils/crypto'
+import {createSandbox} from 'sinon'
+import {encrypt, decrypt} from '../../utils/crypto'
 
 describe('Crypto', () => {
   let secret
@@ -14,7 +14,7 @@ describe('Crypto', () => {
   beforeEach(() => {
     secret = 'Abc'
     ENCRYPTION_ALGORITHM = 'seed'
-    payload = { userName: 'Test' }
+    payload = {userName: 'Test'}
     token = 'b754fb8d24c2948912a2a74d230dc162220aa62106e702dc09a39c3bf53f525d'
   })
   afterEach(() => {

@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { expect } from 'chai'
-import { createSandbox } from 'sinon'
+import {expect} from 'chai'
+import {createSandbox} from 'sinon'
 import * as authRouter from '../../controllers/auth'
 import * as userService from '../../services/user'
 import * as jwt from '../../utils/jwt'
@@ -16,7 +16,7 @@ describe('Auth controller', () => {
   let user
   before(done => {
     server = apiMock(authRouter, PORT)
-    user = { id: 1, email: 'test@gmail.com', password: '1234', role: 'Admin' }
+    user = {id: 1, email: 'test@gmail.com', password: '1234', role: 'Admin'}
     done()
   })
 
@@ -45,7 +45,7 @@ describe('Auth controller', () => {
     sanbox.stub(syncPassword, 'verifyPasswordSync').resolves(true)
     sanbox.stub(jwt, 'generateAccessToken').returns('Token')
     const result = await axios.post(`${url}/login`)
-    const data = { message: 'Login success.', access_token: 'Token', role: user.role }
+    const data = {message: 'Login success.', access_token: 'Token', role: user.role}
     expect(result.data).include(data)
   })
 })
