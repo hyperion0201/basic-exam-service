@@ -3,11 +3,18 @@ import * as TestKitService from '../services/test-kit'
 import {HTTP_STATUS_CODES} from '../utils/constants'
 import ServerError from '../utils/custom-error'
 
-export function requireTestKitOwner() {
+export function requireTestKitOwner(opts = {}) {
+  const {testKitIdPath = 'params.id'} = opts
   return async (req, res, next) => {
     const userId = get(req, 'user.id')
-    const idTestKit = +req.params.id
-    
+    const idTestKit = Number(get(req, testKitIdPath))
+
+    if (!idTestKit) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
+        message: 'Missing testKitId.'
+      })
+    }
+
     try {
       const testKit = await TestKitService.getDetailTestKitByUserCreated(idTestKit, userId)
       if (!testKit) {
