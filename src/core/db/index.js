@@ -47,5 +47,6 @@ db.Question.belongsTo(db.TestKit, {foreignKey: 'testKitId'})
 
 db.UserAnswer.belongsTo(db.Question, {foreignKey: 'questionId'})
 db.UserAnswer.belongsTo(db.User, {foreignKey: 'userId'})
+db.UserAnswer.belongsTo(db.Test, {foreignKey: 'testId'})
 
 export default db

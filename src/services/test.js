@@ -1,3 +1,5 @@
+import get from 'lodash/get'
+import omit from 'lodash/omit'
 import db from '../core/db'
 import ServerError from '../utils/custom-error'
 
@@ -45,18 +47,18 @@ export async function createTest(payload = {}) {
   }
   catch (err) {
     throw new ServerError({
-      name: 'Something error when update test.',
+      name: 'Something error when create test.',
       err
     })
   }
 }
 
-export async function updateTest(payload = {}, idQuestion) {
+export async function updateTest(payload = {}, opts = {}) {
   try {
     return await db.Test.update({
       ...payload
     }, {
-      where: {id: idQuestion}
+      ...opts
     })
   }
   catch (err) {
@@ -65,4 +67,27 @@ export async function updateTest(payload = {}, idQuestion) {
       err
     })
   }
+}
+
+export async function getTestHistoryDetail(testId) {
+  const userAnswers = await db.UserAnswer.findAll({
+    where: {testId},
+    raw: false,
+    include: [{
+      model: db.Question
+    }]
+  })
+
+  return userAnswers.map(answer => {
+    const rawAnswer = answer.toJSON()
+    const originQuestionChoices = JSON.parse(get(rawAnswer, 'Question.choices', []))
+    const choicesOnly = originQuestionChoices.map(question => omit(question, ['is_correct']))
+    return {
+      ...rawAnswer,
+      Question: {
+        ...rawAnswer.Question,
+        choices: choicesOnly
+      }
+    }
+  })
 }

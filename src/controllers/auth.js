@@ -91,6 +91,19 @@ router.post('/login', async (req, res, next) => {
 
   // to-do: account is not verified
 
+  // reject disabled / not-verified user
+  if (user.status === enums.USER_STATUS.DISABLED) {
+    return res.status(HTTP_STATUS_CODES.FORBIDDEN).send({
+      message: 'Your account was disabled.'
+    })
+  }
+
+  if (user.status === enums.USER_STATUS.NOT_VERIFIED) {
+    return res.status(HTTP_STATUS_CODES.FORBIDDEN).send({
+      message: 'Your account is not verified. Please check your email.'
+    })
+  }
+
   const token = generateAccessToken({
     id: user.id,
     email: user.email

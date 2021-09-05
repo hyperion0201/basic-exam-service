@@ -1,3 +1,5 @@
+import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import db from '../core/db'
 import ServerError from '../utils/custom-error'
 
@@ -13,9 +15,10 @@ export async function getQuestionForTestKit(id) {
   }
 }
 
-export async function getDetailQuestion(id) {
+export async function getDetailQuestion(id, opts = {}) {
+  const {raw = false} = opts
   try {
-    return await db.Question.findOne({where: {id}})
+    return await db.Question.findOne({where: {id}}, raw)
   }
   catch (err) {
     throw new ServerError({
@@ -66,5 +69,22 @@ export async function deleteQuestion(idQuestion) {
       name: 'Something error when delete question.',
       err
     })
+  }
+}
+
+export async function getAnswerResult(questionId, answer = []) {
+
+  const question = await getDetailQuestion(questionId, {raw: true})
+  const questionChoices = JSON.parse(get(question, 'choices', []))
+
+  let correctAnswer = questionChoices.map((choice, index) => {
+    return get(choice, 'is_correct') === true ? index : null
+  })
+  correctAnswer = correctAnswer.filter(item => item !== null)
+  const isCorrect = isEqual(correctAnswer, answer)
+
+  return {
+    isCorrect,
+    score: isCorrect ? get(question, 'score', 0) : 0
   }
 }

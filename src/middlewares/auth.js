@@ -53,6 +53,13 @@ export function authenticate(options = {}) {
           })
         }
       }
+      
+      // reject disabled user
+      if (user.status === enums.USER_STATUS.DISABLED) {
+        return res.status(HTTP_STATUS_CODES.FORBIDDEN).send({
+          message: 'Your account was disabled.'
+        })
+      }
 
       req.user = user
       return next()
