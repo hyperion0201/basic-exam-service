@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken'
 import get from 'lodash/get'
-import { JWT_SECRET } from '../configs'
-import { getUser, isAdmin } from '../services/user'
-import { HTTP_STATUS_CODES } from '../utils/constants'
+import {JWT_SECRET} from '../configs'
+import {getUser, isAdmin} from '../services/user'
+import {HTTP_STATUS_CODES} from '../utils/constants'
+import * as enums from '../utils/constants'
 import ServerError from '../utils/custom-error'
 
 function extractTokenFromRequest(req) {
@@ -21,7 +22,7 @@ function verifyToken(token) {
 }
 
 export function authenticate(options = {}) {
-  const { requiredAdmin = false } = options
+  const {requiredAdmin = false} = options
 
   return async (req, res, next) => {
     const token = extractTokenFromRequest(req)
@@ -62,5 +63,22 @@ export function authenticate(options = {}) {
         err
       }))
     }
+  }
+}
+
+export function requireStatusRole() {
+  return async (req, res, next) => {
+    const {role = '', status = ''} = get(req, 'body')
+    const StatusArray = [enums.USER_STATUS.DISABLED, enums.USER_STATUS.VERIFIED]
+    const RoleUserArray = [enums.USER_ROLES.ADMIN, enums.USER_ROLES.USER]
+
+    if (!StatusArray.includes(status)) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'invalid status'})
+    }
+    if (!RoleUserArray.includes(role)) {
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'invalid role'})
+    }
+    
+    next()
   }
 }
