@@ -3,17 +3,17 @@
 import express from 'express'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
-import {RESET_PASSWORD_SECRET} from '../configs'
-import {authenticate} from '../middlewares/auth'
+import { RESET_PASSWORD_SECRET } from '../configs'
+import { authenticate } from '../middlewares/auth'
 import sendEmail from '../services/email'
 import GoogleOAuth2 from '../services/google-auth'
 import * as userService from '../services/user'
-import {HTTP_STATUS_CODES} from '../utils/constants'
+import { HTTP_STATUS_CODES } from '../utils/constants'
 import * as enums from '../utils/constants'
-import {encrypt, decrypt} from '../utils/crypto'
+import { encrypt, decrypt } from '../utils/crypto'
 //import ServerError from '../utils/custom-error'
-import {generateAccessToken} from '../utils/jwt'
-import {verifyPasswordSync, generateResetPassword} from '../utils/password'
+import { generateAccessToken } from '../utils/jwt'
+import { verifyPasswordSync, generateResetPassword } from '../utils/password'
 
 const DASHBOARD_URL = 'https://online-exam-2021.herokuapp.com'
 
@@ -36,7 +36,7 @@ router.get('/google/callback', async (req, res, next) => {
       googleOAuth2Client.setCredentials(tokenResponse)
       const response = await googleOAuth2Client.getUserInfo()
 
-      const {email, name, verified_email} = response.data
+      const { email, name, verified_email } = response.data
 
       if (!verified_email) {
         return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
@@ -52,7 +52,7 @@ router.get('/google/callback', async (req, res, next) => {
           email,
           role: enums.USER_ROLES.USER,
           fullname: name
-        }, {setVerified: true})
+        }, { setVerified: true })
       }
 
       // create signed jsonwebtoken and push it back.
@@ -70,7 +70,7 @@ router.get('/google/callback', async (req, res, next) => {
 })
 
 router.post('/login', async (req, res, next) => {
-  const {email = '', password = ''} = req.body
+  const { email = '', password = '' } = req.body
   const user = await userService.getUser({
     where: {
       email
@@ -188,7 +188,7 @@ router.post('/change-password',
 )
 
 router.post('/reset-password', async (req, res, next) => {
-  const {email} = req.body
+  const { email } = req.body
   const user = await userService.getUser({
     where: {
       email
@@ -212,7 +212,7 @@ router.post('/reset-password', async (req, res, next) => {
     await sendEmail(
       email,
       '[Basic Exam] - Password reset',
-    `Hi.
+      `Hi.
      We've reset your password.
      Your new password is : ${resetPassword}.
      Please re-login.
@@ -229,9 +229,9 @@ router.post('/reset-password', async (req, res, next) => {
   }
 })
 
-router.get('/all', authenticate({requiredAdmin: true}), async (req, res, next) => {
+router.get('/all', authenticate({ requiredAdmin: true }), async (req, res, next) => {
   try {
-    const users = await userService.getAllUsers({where: {role: enums.USER_ROLES.USER}})
+    const users = await userService.getAllUsers({ where: { role: enums.USER_ROLES.USER } })
 
     const userFormat = users.map((item) => pick(item, ['fullname', 'email', 'role', 'status']))
     
@@ -242,17 +242,17 @@ router.get('/all', authenticate({requiredAdmin: true}), async (req, res, next) =
   }
 })
 
-router.patch('/:id/status', authenticate({requiredAdmin: true}), async (req, res, next) => {
+router.patch('/:id/status', authenticate({ requiredAdmin: true }), async (req, res, next) => {
   const idUser = +req.params.id
   const payload = get(req, 'body')
 
   if (![enums.USER_STATUS.DISABLED, enums.USER_STATUS.VERIFIED].includes(payload.status)) {
-    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'invalid status'})
+    return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: 'invalid status' })
   }
   try {
-    await userService.updateUser({where: {id: idUser}}, payload)
+    await userService.updateUser({ where: { id: idUser } }, payload)
     
-    res.json({message: 'Change status success'})
+    res.json({ message: 'Change status success' })
   }
   catch (err) {
     next(err)
@@ -264,7 +264,7 @@ router.get('/', authenticate(), async (req, res, next) => {
     
   try {
     const user = await userService.getUser({
-      where: {id: userId}
+      where: { id: userId }
     })
 
     res.json(pick(user, ['fullname', 'email', 'role']))
@@ -285,7 +285,7 @@ router.patch('/', authenticate(), async (req, res, next) => {
       }
     }, infoUserUpdate)
 
-    res.json({message: 'Update success'})
+    res.json({ message: 'Update success' })
   }
   catch (err) {
     next(err)

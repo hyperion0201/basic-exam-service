@@ -3,7 +3,7 @@ import ServerError from '../utils/custom-error'
 
 export async function getQuestionForTestKit(id) {
   try {
-    return await db.Question.findAll({where: {testKitId: id}})
+    return await db.Question.findAll({ where: { testKitId: id } })
   }
   catch (err) {
     throw new ServerError({
@@ -15,7 +15,7 @@ export async function getQuestionForTestKit(id) {
 
 export async function getDetailQuestion(id) {
   try {
-    return await db.Question.findOne({where: {id}})
+    return await db.Question.findOne({ where: { id } })
   }
   catch (err) {
     throw new ServerError({
@@ -44,7 +44,7 @@ export async function updateQuestion(payload = {}, idQuestion, idTestKit) {
     return await db.Question.update({
       ...payload
     }, {
-      where: {id: idQuestion, testKitId: idTestKit}
+      where: { id: idQuestion, testKitId: idTestKit }
     })
   }
   catch (err) {
@@ -58,7 +58,7 @@ export async function updateQuestion(payload = {}, idQuestion, idTestKit) {
 export async function deleteQuestion(idQuestion) {
   try {
     return await db.Question.destroy({
-      where: {id: idQuestion}
+      where: { id: idQuestion }
     })
   }
   catch (err) {

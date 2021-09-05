@@ -1,11 +1,11 @@
 /* eslint-disable babel/new-cap */
 import express from 'express'
 import get from 'lodash/get'
-import {authenticate} from '../middlewares/auth'
+import { authenticate } from '../middlewares/auth'
 import * as QuestionService from '../services/question'
 import * as TestKitService from '../services/test-kit'
-import {HTTP_STATUS_CODES} from '../utils/constants'
-import {examHasStart} from '../utils/date'
+import { HTTP_STATUS_CODES } from '../utils/constants'
+import { examHasStart } from '../utils/date'
 
 const router = express.Router()
 
@@ -23,14 +23,14 @@ router.get('/:id', authenticate(), async (req, res, next) => {
     }
 
     const questionsRaw = await QuestionService.getQuestionForTestKit(TestKitId)
-    if (questionsRaw.length === 0) return res.json({data: questionsRaw})
+    if (questionsRaw.length === 0) return res.json({ data: questionsRaw })
 
     const questions = questionsRaw.map((item) => {
       const data = get(item, 'dataValues')
-      return {...data, choices: JSON.parse(data.choices)}
+      return { ...data, choices: JSON.parse(data.choices) }
     })
 
-    res.json({data: questions})
+    res.json({ data: questions })
   }
   catch (err) {
     next(err)
@@ -45,11 +45,11 @@ router.post('/', authenticate(), async (req, res, next) => {
     const testKit = await TestKitService.getDetailTestKitById(questions.testKitId)
 
     if (examHasStart(testKit?.dataValues?.startDate)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam has started'})
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: 'The exam has started' })
     }
 
     await QuestionService.createQuestion(questions)
-    res.json({message: `Create question to test kit has id ${questions.testKitId} success`})
+    res.json({ message: `Create question to test kit has id ${questions.testKitId} success` })
   }
   catch (err) {
     next(err)
@@ -66,7 +66,7 @@ router.put('/:id', authenticate(), async (req, res, next) => {
     const testKit = await TestKitService.getDetailTestKitById(questionsUpdate.testKitId)
 
     if (examHasStart(testKit?.dataValues?.startDate)) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({message: 'The exam has started'})
+      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ message: 'The exam has started' })
     }
 
     await QuestionService.updateQuestion(questionsUpdate, idQuestion, questionsUpdate.testKitId)
@@ -90,17 +90,17 @@ router.delete('/:id', authenticate(), async (req, res, next) => {
     const question = await QuestionService.getDetailQuestion(idQuestion)
 
     if (!testKit || !question || question.testKitId !== idTestKit) {
-      return res.status(HTTP_STATUS_CODES.NOT_FOUND).json({message: 'Question not found'})
+      return res.status(HTTP_STATUS_CODES.NOT_FOUND).json({ message: 'Question not found' })
     }
 
     if (!question?.testKitId) {
       await QuestionService.deleteQuestion(idQuestion)
-      return res.json({message: `Delete question id ${idQuestion} success`})
+      return res.json({ message: `Delete question id ${idQuestion} success` })
     }
 
     await QuestionService.deleteQuestion(idQuestion)
 
-    res.json({message: `Delete question id ${idQuestion} success`})
+    res.json({ message: `Delete question id ${idQuestion} success` })
   }
   catch (err) {
     next(err)

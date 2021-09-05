@@ -1,5 +1,5 @@
 /* eslint-disable babel/new-cap */
-import {DataTypes} from 'sequelize'
+import { DataTypes } from 'sequelize'
 
 export default function (sequelize) {
   const schema = {
