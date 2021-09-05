@@ -74,11 +74,7 @@ router.get('/google/callback', async (req, res, next) => {
 
 router.post('/login', async (req, res, next) => {
   const {email = '', password = ''} = req.body
-  const user = await userService.getUser({
-    where: {
-      email
-    }
-  })
+  const user = await userService.getUser({where: {email}})
 
   if (!user) {
     return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
@@ -111,11 +107,7 @@ router.get('/verification', async (req, res, next) => {
   const code = req.query.code
   try {
     const email = decrypt(code, RESET_PASSWORD_SECRET)
-    const user = await userService.getUser({
-      where: {
-        email
-      }
-    })
+    const user = await userService.getUser({where: {email}})
 
     if (!user) {
       return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
@@ -124,14 +116,8 @@ router.get('/verification', async (req, res, next) => {
     }
 
     await userService.updateUser(
-      {
-        where: {
-          email
-        }
-      },
-      {
-        status: enums.USER_STATUS.VERIFIED
-      }
+      {where: {email}},
+      {status: enums.USER_STATUS.VERIFIED}
     )
 
     return res.redirect(`${DASHBOARD_URL}/verify-success`)
@@ -148,13 +134,11 @@ router.post('/register', async (req, res, next) => {
     const userEmail = get(user, 'email')
     const code = encrypt(userEmail, RESET_PASSWORD_SECRET)
     const verifyUrl = `https://wiflyhomework.com/exam-api/v1/auth/verification?code=${code}`
-    await sendEmail(
-      userEmail,
+    await sendEmail(userEmail,
       '[Basic Exam] - Verify your new account',
       `Hi.
        Please go to this link to verify your account: ${verifyUrl}
-       Thanks.
-    `
+       Thanks.`
     )
     res.json(user)
   }
@@ -177,14 +161,7 @@ router.post('/change-password', authenticate(), async (req, res, next) => {
   }
 
   try {
-    await userService.updatePassword(
-      {
-        where: {
-          id: userId
-        }
-      },
-      newPass
-    )
+    await userService.updatePassword({where: {id: userId}}, newPass)
 
     return res.json({
       message: 'Change password successfully.'
@@ -197,11 +174,7 @@ router.post('/change-password', authenticate(), async (req, res, next) => {
 
 router.post('/reset-password', async (req, res, next) => {
   const {email} = req.body
-  const user = await userService.getUser({
-    where: {
-      email
-    }
-  })
+  const user = await userService.getUser({where: {email}})
 
   if (!user) {
     return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({
@@ -212,11 +185,7 @@ router.post('/reset-password', async (req, res, next) => {
   const resetPassword = generateResetPassword()
   try {
     await userService.updatePassword(
-      {
-        where: {
-          id: user.id
-        }
-      },
+      {where: {id: user.id}},
       resetPassword
     )
 
@@ -231,9 +200,7 @@ router.post('/reset-password', async (req, res, next) => {
      `
     )
 
-    res.json({
-      message: 'Reset password successfully'
-    })
+    res.json({message: 'Reset password successfully'})
   }
   catch (err) {
     next(err)
@@ -298,14 +265,7 @@ router.patch('/', authenticate(), async (req, res, next) => {
   const infoUserUpdate = get(req, 'body')
 
   try {
-    await userService.updateUser(
-      {
-        where: {
-          id: userId
-        }
-      },
-      infoUserUpdate
-    )
+    await userService.updateUser({where: {id: userId}}, infoUserUpdate)
 
     res.json({message: 'Update success'})
   }
