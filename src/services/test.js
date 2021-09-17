@@ -3,6 +3,18 @@ import omit from 'lodash/omit'
 import db from '../core/db'
 import ServerError from '../utils/custom-error'
 
+export async function getAllTestsByAdmin() {
+  try {
+    return await db.Test.findAll()
+  }
+  catch (err) {
+    throw new ServerError({
+      name: 'Something error when get all test by admin',
+      err
+    })
+  }
+}
+
 export async function getTestsById(id) {
   try {
     return await db.Test.findOne({where: {id}})
