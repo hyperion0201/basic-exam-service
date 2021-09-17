@@ -7,9 +7,10 @@ import * as testService from '../services/test'
 
 const router = express.Router()
 
-router.post('/started', authenticate(), async (req, res, next) => {
+router.get('/admin', authenticate({requiredAdmin: true}), async (req, res, next) => {
   try {
-    res.json('done')
+    const tests = await testService.getAllTestsByAdmin()
+    return res.json({data: tests})
   }
   catch (err) {
     next(err)
