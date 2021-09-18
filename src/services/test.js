@@ -1,5 +1,6 @@
 import get from 'lodash/get'
 import omit from 'lodash/omit'
+import pick from 'lodash/pick'
 import db from '../core/db'
 import ServerError from '../utils/custom-error'
 
@@ -40,8 +41,22 @@ export async function getTestsByIdUser(id) {
 }
 
 export async function getTestsByIdTestKit(id) {
+  
   try {
-    return await db.Test.findAll({where: {testKitId: id}})
+    const tests = await db.Test.findAll({
+      where: {testKitId: id},
+      raw: false,
+      include: [{
+        model: db.User
+      }]
+    })
+
+    return tests.map(test => {
+      const rawTests = test.toJSON()
+      const user = pick(test.User, 'email')
+      return {...rawTests, User: user}
+    })
+  
   }
   catch (err) {
     throw new ServerError({
